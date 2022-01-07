@@ -5,10 +5,21 @@ services:
     image: mindspy/squid-deb-proxy:latest
 #    platform: ${platform}
     volumes:
-      - ./data:/data
-    ports:
-        - "8000:8000"
+      - data-vol:/data
+    networks:
+      - proxy-net
+    expose:
+      - 8000
     environment:
-      - USE_ACL=${DOCKER_SQUID_USE_ACL}
-      - USE_AVAHI=${DOCKER_SQUID_USE_AVAHI}
-    restart: always
+      - USE_ACL=0
+      - USE_AVAHI=0
+      - http_proxy
+    restart: unless-stopped
+
+volumes:
+  data-vol:
+    name: squid-deb-proxy-data
+
+networks:
+  proxy-net:
+    name: squid-deb-proxy-net
