@@ -2,7 +2,7 @@
 
 ARG platform=linux/amd64
 FROM --platform=${platform} debian:bullseye-slim
-MAINTAINER https://github.com/muccg/
+MAINTAINER https://github.com/mindspy/
 
 ARG USE_AVAHI=0
 

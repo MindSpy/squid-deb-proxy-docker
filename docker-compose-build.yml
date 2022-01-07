@@ -1,6 +1,14 @@
 version: '2.4'
 services:
 
+  dev-avahi:
+    extends:
+      service: dev
+    build:
+      args:
+        - USE_AVAHI=1
+    image: mindspy/squid-deb-proxy:${GIT_BRANCH}-avahi
+
   dev:
     platform: ${platform}
     build:
@@ -9,14 +17,14 @@ services:
         - http_proxy
         - platform
         - USE_AVAHI=0
-    image: muccg/squid-deb-proxy:${GIT_BRANCH}
+    image: mindspy/squid-deb-proxy:${GIT_BRANCH}
 
   latest:
     extends:
       service: dev
-    image: muccg/squid-deb-proxy:latest
+    image: mindspy/squid-deb-proxy:latest
 
   latest-date:
     extends:
       service: dev
-    image: muccg/squid-deb-proxy:latest-${CCG_BUILD_DATE}
+    image: mindspy/squid-deb-proxy:latest-${BUILD_DATE}
