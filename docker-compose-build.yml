@@ -1,21 +1,22 @@
-version: '2'
+version: '2.4'
 services:
 
   dev:
+    platform: ${platform}
     build:
       context: ./
       args:
-        http_proxy:
+        - http_proxy
+        - platform
+        - USE_AVAHI=0
     image: muccg/squid-deb-proxy:${GIT_BRANCH}
 
   latest:
     extends:
-      file: docker-compose-build.yml
       service: dev
     image: muccg/squid-deb-proxy:latest
 
   latest-date:
     extends:
-      file: docker-compose-build.yml
       service: dev
     image: muccg/squid-deb-proxy:latest-${CCG_BUILD_DATE}

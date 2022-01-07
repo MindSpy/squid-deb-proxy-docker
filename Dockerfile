@@ -1,46 +1,43 @@
 #
-FROM debian:stretch-slim
+
+ARG platform=linux/amd64
+FROM --platform=${platform} debian:bullseye-slim
 MAINTAINER https://github.com/muccg/
 
-ENV USE_ACL=1
-ENV USE_AVAHI=0
-ENV DEBIAN_FRONTEND noninteractive
+ARG USE_AVAHI=0
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  avahi-utils \
-  avahi-daemon \
-  squid-deb-proxy \
-  squid-deb-proxy-client \
-  && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ENV USE_ACL=1 \
+    USE_AVAHI=${USE_AVAHI}
 
-RUN env --unset=DEBIAN_FRONTEND
+RUN set -ex \
+  ; export DEBIAN_FRONTEND=noninteractive \
+  ; pkgs=squid-deb-proxy \
+  ; if [ "${USE_AVAHI}" = "1" ]; then  \
+    pkgs="$pkgs avahi-utils avahi-daemon squid-deb-proxy-client" \
+  ; fi \
+  ; apt-get update -y  \
+  ; apt-get install -y --no-install-recommends --reinstall \
+    $pkgs ca-certificates \
+  ; update-ca-certificates \
+  ; apt-get clean \
+  ; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  ; env --unset=DEBIAN_FRONTEND 
 
 # Add ACLs
-ADD etc /etc
+COPY etc /etc
 
-# Additional config, mount over this at runtime to override 
-RUN echo \
-'refresh_pattern rpm$   129600 100% 129600\n\
-shutdown_lifetime 1 second\n\
-pipeline_prefetch on\n\
-icp_port 0\n\
-htcp_port 0\n\
-icp_access deny all\n\
-htcp_access deny all\n\
-snmp_port 0\n\
-snmp_access deny all\n'\
-    >> /etc/squid-deb-proxy/squid-deb-proxy.conf
+RUN set -ex \
+  # extend config
+  ; cat /etc/squid-deb-proxy/squid-deb-proxy.conf.add >> \
+        /etc/squid-deb-proxy/squid-deb-proxy.conf \
+  # Point cache directory to /data
+  ; ln -sf /data /var/cache/squid-deb-proxy \
+  # Redirect logs to stdout for the container
+  ; ln -sf /dev/stdout /var/log/squid-deb-proxy/access.log \
+  ; ln -sf /dev/stdout /var/log/squid-deb-proxy/store.log \
+  ; ln -sf /dev/stdout /var/log/squid-deb-proxy/cache.log 
 
-
-# Point cache directory to /data
-RUN ln -sf /data /var/cache/squid-deb-proxy
-
-# Redirect logs to stdout for the container
-RUN ln -sf /dev/stdout /var/log/squid-deb-proxy/access.log
-RUN ln -sf /dev/stdout /var/log/squid-deb-proxy/store.log
-RUN ln -sf /dev/stdout /var/log/squid-deb-proxy/cache.log
-
-ADD docker-entrypoint.sh /docker-entrypoint.sh
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 VOLUME ["/data"]
 

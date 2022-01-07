@@ -1,0 +1,10 @@
+refresh_pattern rpm$   129600 100% 129600
+shutdown_lifetime 1 second
+pipeline_prefetch on
+icp_port 0
+htcp_port 0
+icp_access deny all
+htcp_access deny all
+snmp_port 0
+snmp_access deny all
+
