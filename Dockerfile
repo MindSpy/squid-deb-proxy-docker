@@ -1,8 +1,5 @@
-#
-
-ARG platform=linux/amd64
-FROM --platform=${platform} debian:bullseye-slim
-MAINTAINER https://github.com/mindspy/
+ARG platform=$TARGETPLATFORM
+FROM --platform=$platform debian:bullseye-slim
 
 ARG USE_AVAHI=0
 ARG PKG_PROXY
