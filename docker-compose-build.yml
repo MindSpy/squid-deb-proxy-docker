@@ -16,6 +16,7 @@ services:
       args:
         - http_proxy
         - platform
+        - PKG_PROXY
         - USE_AVAHI=0
     image: mindspy/squid-deb-proxy:${GIT_BRANCH}
 
