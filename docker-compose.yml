@@ -1,9 +1,10 @@
 version: '2.4'
 services:
 
-  squid-deb-proxy:
+  pkg-proxy:
     image: mindspy/squid-deb-proxy:latest
-#    platform: ${platform}
+    container_name: pkg-proxy
+    # platform: ${platform}
     volumes:
       - data-vol:/data
     networks:
