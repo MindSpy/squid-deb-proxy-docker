@@ -2,7 +2,6 @@
 
 test -e env.hcl && source env.hcl
 
-
 BUILDER_NAME=multiarch
 DRIVER_OPTS=""
 if [ -n "${PKG_PROXY_NET}" ]; then
@@ -11,7 +10,7 @@ fi
 
 set -ex
 
-if ! docker buildx ls | grep ^$BUILDER_NAME -c > /dev/null; then
+if ! docker buildx ls | grep ^$BUILDER_NAME -c > /dev/null 2>&1; then
 
     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
     docker run --privileged --rm tonistiigi/binfmt --install all
@@ -22,6 +21,22 @@ if ! docker buildx ls | grep ^$BUILDER_NAME -c > /dev/null; then
 
 fi
 
-# docker buildx bake -f env.hcl -f docker-bake.hcl --push  --no-cache --progress=plain latest
-docker buildx bake -f env.hcl -f docker-bake.hcl --push $targets
+if [ -n "$(git status -s)" ]; then
+  GIT_BRANCH=DIRTY 
+else 
+  GIT_BRANCH=$(git rev-parse --short HEAD)
+fi
+
+BUILD_DATE="$(date +%Y%m%d)"
+
+BAKE_ARGS="-f env.hcl -f docker-bake.hcl"
+
+if [ -z "${GIT_BRANCH}" -o "${GIT_BRANCH}" == "DIRTY" ]; then
+  BAKE_ARGS="$BAKE_ARGS --progress=plain dev"
+else
+  BAKE_ARGS="$BAKE_ARGS --push $targets"
+fi
+
+docker buildx bake $BAKE_ARGS
+
 # docker buildx rm multiarch
