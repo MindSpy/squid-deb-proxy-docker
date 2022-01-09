@@ -1,6 +1,6 @@
-variable "PKG_PROXY" {
-  default = ""
-}
+variable "PKG_PROXY" {  }
+variable "GIT_BRANCH" {  }
+variable "BUILD_DATE" {  }
 
 
 group "default" {
