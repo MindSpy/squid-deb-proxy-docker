@@ -1,3 +1,6 @@
+variable "PKG_PROXY" {
+  default = ""
+}
 
 
 group "default" {
