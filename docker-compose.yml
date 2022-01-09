@@ -15,6 +15,13 @@ services:
       - USE_ACL=0
       - USE_AVAHI=0
       - http_proxy
+    healthcheck:
+      test: /health-check.sh 8000
+      interval: 20s
+      timeout: 2s
+      retries: 3
+      start_period: 20s
+
     restart: unless-stopped
 
 volumes:
@@ -23,4 +30,4 @@ volumes:
 
 networks:
   proxy-net:
-    name: squid-deb-proxy-net
+    name: pkg-proxy-net

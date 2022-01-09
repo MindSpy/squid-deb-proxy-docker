@@ -12,7 +12,7 @@ RUN set -ex \
   ; if [ -n "$PKG_PROXY" ]  \
   ; then echo "Acquire::http::Proxy \"$PKG_PROXY\";" >> /etc/apt/apt.conf.d/01proxybuild \
   ; fi \
-  ; pkgs="ca-certificates squid-deb-proxy" \
+  ; pkgs="ca-certificates squid-deb-proxy netcat" \
   ; if [ "${USE_AVAHI}" = "1" ]  \
   ; then pkgs="$pkgs avahi-utils avahi-daemon squid-deb-proxy-client" \
   ; fi \
@@ -38,11 +38,14 @@ RUN set -ex \
   ; ln -sf /dev/stdout /var/log/squid-deb-proxy/store.log \
   ; ln -sf /dev/stdout /var/log/squid-deb-proxy/cache.log 
 
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY docker-entrypoint.sh health-check.sh /
 
 VOLUME ["/data"]
 
 EXPOSE 8000 5353/udp
+
+HEALTHCHECK --interval=20s --timeout=2s --retries=3 \
+  CMD /health-check.sh 8000
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["squid"]
