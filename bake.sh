@@ -32,7 +32,7 @@ BUILD_DATE="$(date +%Y%m%d)"
 BAKE_ARGS="-f env.hcl -f docker-bake.hcl"
 
 if [ -z "${GIT_BRANCH}" -o "${GIT_BRANCH}" == "DIRTY" ]; then
-  BAKE_ARGS="$BAKE_ARGS --progress=plain dev"
+  BAKE_ARGS="$BAKE_ARGS --progress=plain --builder default --set *.output=type=image --set *.platform=linux/386 dev"
 else
   BAKE_ARGS="$BAKE_ARGS --push $targets"
 fi
