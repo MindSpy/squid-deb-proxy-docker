@@ -3,6 +3,7 @@
 env_file=env.hcl
 BUILDER_NAME=multiarch
 BAKE_ARGS=""
+default_platform=linux/amd64
 for arg in "$@"; do
   case "$arg" in
     --env=*) 
@@ -14,7 +15,10 @@ for arg in "$@"; do
     --targets=*) 
         targets="${arg#*=}"
         ;;
-    --print | --load )
+    --platform=*)
+        platform="${arg#*=}"
+        ;;
+    --print | --load)
         BAKE_ARGS="$BAKE_ARGS $arg"
         ;;
     *)
@@ -60,8 +64,11 @@ else
 fi
 
 if [ -z "${GIT_BRANCH}" -o "${GIT_BRANCH}" == "DIRTY" ]; then
-  BAKE_ARGS="$BAKE_ARGS --progress=plain --load --set *.platform=linux/amd64 dev"
+  BAKE_ARGS="$BAKE_ARGS --progress=plain --load --set *.platform=${platform:-${default_platform}} dev"
 else
+  if [ -n "$platform" ]; then
+    BAKE_ARGS="$BAKE_ARGS --set *.platform=${platform}"
+  fi
   BAKE_ARGS="$BAKE_ARGS --push $targets"
 fi
 
