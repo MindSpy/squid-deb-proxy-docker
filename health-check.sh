@@ -15,9 +15,7 @@ pid=$!
 
 # after a while send token via proxy connect
 sleep 1
-nc -N -X connect -x 127.0.0.1:$proxy_port 127.0.0.1 $listen_port <<-EOF
-$token
-EOF
+echo "$token" | nc -N -X connect -x 127.0.0.1:$proxy_port 127.0.0.1 $listen_port
 
 # wait for the detached process
 wait $pid
